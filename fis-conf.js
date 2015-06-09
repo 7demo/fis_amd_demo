@@ -12,7 +12,6 @@ fis.config.set('settings.postprocessor.amd', {
     // 不同的是，这是编译期处理，路径请填写编译路径。
     paths: {
         jquery: 'lib/components/jquery/jquery.js',
-        bootstrap: 'lib/components/bootstrap/js/bootstrap.js',
         jqueryui: 'lib/components/jquery-ui/ui/'
         // app: './modules/app',
         // css: './modules/css.js'
@@ -46,35 +45,75 @@ fis.config.set('settings.postprocessor.amd', {
 // 使用 depscombine 是因为，在配置 pack 的时候，命中的文件其依赖也会打包进来。
 fis.config.set('modules.packager', 'depscombine');
 
-fis.config.set('pack', {
-    'pkg/css/jqueyr-ui.css': [
-        '/libs/components/jquery-ui/themes/base/core.css',
-        '/libs/components/jquery-ui/themes/base/tabs.css',
-        '/libs/components/jquery-ui/themes/base/datepicker.css',
-        '/libs/components/jquery-ui/themes/base/theme.css'
-    ],
-
-    // js
-    // 依赖也会自动打包进来, 且可以通过控制前后顺来来定制打包，后面的匹配结果如果已经在前面匹配过，将自动忽略。
-    // 'pkg/zrender.js': ['modules/libs/zrender/zrender.js'],
-    'pkg/echarts.js': ['modules/libs/echarts/echarts.js']
-
-    // 'pkg/bootstrap_jquery.js': ['lib/components/bootstrap/js/bootstrap.js'],
-    // 'pkg/jquery_ui_tabs.js': ['lib/components/jquery-ui/ui/tabs.js']
-});
-
 fis.config.set('roadmap.path', [
 
     {
         reg: /\/_[^\/]*?$/i,
         release: false
     },
+    {
+        reg: '**.scss',
+        useSprite: true
+    }
 
     // 标记 isMod 为 true, 这样，在 modules 里面的满足 commonjs 规范的 js 会自动包装成 amd js, 以至于能在浏览器中运行。
     //
-    {
-        reg: /^\/modules\/(.*\.js)$/i,
-        isMod: true,
-        release: '/modules\/$1'
-    }
+    // {
+    //     reg: /^\/lib\/(.*\.js)$/i,
+    //     isMod: true,
+    //     release: '/lib\/$1'
+    // }
 ]);
+
+
+
+fis.config.set('settings.spriter.csssprites.margin', 20);
+fis.config.set('livereload.port', '8313');
+//scss后缀的文件，用fis-parser-sass插件编译
+fis.config.set('modules.parser.scss', 'sass');
+//scss文件产出为css文件
+fis.config.set('roadmap.ext.scss', 'css');
+
+fis.config.set('pack', {
+    '/lib/css/main.css': [
+        '/lib/css/**.scss'
+    ],
+
+    // js
+    // 依赖也会自动打包进来, 且可以通过控制前后顺来来定制打包，后面的匹配结果如果已经在前面匹配过，将自动忽略。
+    '/lib/js/echarts.js': ['/lib/js/web/echarts.js']
+
+    // 'pkg/bootstrap_jquery.js': ['lib/components/bootstrap/js/bootstrap.js']
+});
+
+fis.config.merge({
+    settings:{
+        parser:{
+            scss:{outputStyle:'compact'}
+        }
+    },
+    roadmap : {
+        path : [
+            // {
+            //     //所有的css文件
+            //     reg : '/lib/css/**.scss',
+            //     // reg : /\/lib\/css\/(.*\.scss)$/i,
+            //     //发布到/Public/css/xxx目录下
+            //     release : '$&'
+            //     //访问url是/Public/css/xxx
+            //     // url: '__PUBLIC__/css/$1'
+            //     // url : '../static/css/$1'
+            // }
+            {
+                //所有html页面
+                reg : /\/view\/(.*\.html)$/i,
+                //发布到/static/pic/xxx目录下
+                release : '/Application/Web/View/$1'
+                //访问url是/oo/static/baidu/xxx
+            }
+        ]
+    }
+});
+
+fis.config.set('settings.postpackager.simple.autoCombine', true);
+fis.config.set('settings.postpackager.simple.autoReflow', true);
